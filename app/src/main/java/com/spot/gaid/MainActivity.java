@@ -2,6 +2,7 @@ package com.spot.gaid;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,12 +13,20 @@ import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
+
 
 public class MainActivity extends AppCompatActivity {
 
     MyAsyncTask asyncTask = new MyAsyncTask();
     String GAID = null;
 
+    @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +60,44 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         asyncTask.execute();
+
+//        getAdvertId()
+//                // Исполнение кода getAdvertId происходит в потоке I/O(Ввода/вывода)
+//                .subscribeOn(Schedulers.io())
+//                // Исполнение onSuccess/onError происходит в главном(UI) потоке
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribeWith(new DisposableSingleObserver<String>() {
+//                    @Override
+//                    public void onSuccess(String advertId) {
+//                        // Здесь - код, исполняемый в случае успеха
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        // Здесь - в случаяе ошибки
+//                    }
+//                });
     }
+
+//    // Функция на RXJava
+//    private Single<String> getAdvertId() {
+//        return Single.create(new SingleOnSubscribe<String>() {
+//            @Override
+//            public void subscribe(SingleEmitter<String> subscriber) throws Exception {
+//                AdvertisingIdClient.Info idInfo = null;
+//                try {
+//                    idInfo = AdvertisingIdClient.getAdvertisingIdInfo(getApplicationContext());
+//                    subscriber.onSuccess(idInfo.getId());
+//                } catch (GooglePlayServicesNotAvailableException e) {
+//                    subscriber.onError(e);
+//                } catch (GooglePlayServicesRepairableException e) {
+//                    subscriber.onError(e);
+//                } catch (Exception e) {
+//                    subscriber.onError(e);
+//                }
+//            }
+//        });
+//    }
 
     public class MyAsyncTask extends  AsyncTask<Void, Void, String> {
         public AsyncResponse delegate = null;
